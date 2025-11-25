@@ -36,11 +36,13 @@ class UserManager:
             return False
         return check_password_hash(stored_hash, plain_password)
 
-    def register(self, username, email, password, role="user"):
+    def register(self,firstname,lastname,username, email, password, role="user"):
         if self.db.query(User).filter_by(username=username).first():
             raise ValueError("Username exists")
 
         user = User(
+            firstname=firstname,
+            lastname=lastname,
             username=username,
             email=email,
             password_hash=self._hash_password(password),
