@@ -11,8 +11,9 @@ def db_session():
     Base.metadata.drop_all(engine)
 
 @pytest.fixture
-def manager(db_session, monkeypatch):
+def manager(db_session):
     # override manager's db with test session
-    m = UserManager()
-    m.db = db_session
+    m = UserManager(db_session)
+    # m.db = db_session
+
     return m

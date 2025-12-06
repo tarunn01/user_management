@@ -5,12 +5,12 @@ import uuid
 
 class User(Base):
     __tablename__ = "users"
-    Firstname = Column(String,nullable=False)
-    Lastname = Column(String,nullable=False)
-    username = Column(String, primary_key=True)
+    firstname = Column(String,nullable=False)
+    lastname = Column(String,nullable=False)
+    username = Column(String, primary_key=True,nullable =False,unique=True)
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    role = Column(String, default="user")
+    role = Column(String, default="user",nullable =False)
     # uuid: Unique identifier for external API references (separate from username login)
     uuid = Column(String, unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     # created_at: Timestamp when user account was created (UTC timezone-aware)

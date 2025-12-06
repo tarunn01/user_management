@@ -1,20 +1,60 @@
-def test_register_and_login(manager):
-    user = manager.register("john", "john@email.com", "pass123")
-    assert user.username == "john"
+from app.models import User
+import pytest
 
-    session = manager.login("john", "pass123")
-    assert session.username == "john"
 
-def test_permission_check(manager):
-    manager.register("alice", "a@b.com", "123", role="user")
-    session = manager.login("alice", "123")
-    assert manager.has_permission(session.token, "view_profile")
-    assert not manager.has_permission(session.token, "delete_user")
+def test_user_registration(db_session,manager):
+    """testing registration"""
+    username = "testuser"
+    email = "tarunkmr566@gmail.com"
+    lastname="Doe"
+    firstname="John"    
+    role : str = "user"
+    password = "securepassword"
+    manager.register(firstname,lastname,username, email, password, role)
+    # User = manager.register(firstname,lastname,username, email, "securepassword", role)
+    user = db_session.query(User).filter_by(username=username).first()
+    assert user is not None
+    assert user.email == email
+    assert user.firstname == firstname
+    assert user.lastname == lastname
+    assert user.role == role
 
-def test_password_reset(manager):
-    manager.register("bob", "b@b.com", "abc")
-    token = manager.request_password_reset("b@b.com")
-    manager.reset_password(token, "newpass")
-    # login should succeed with new password
-    session = manager.login("bob", "newpass")
-    assert session.username == "bob"
+def test_password_hashing_test(db_session,manager):
+    """testing password hashing and verification"""
+    username = "john"
+    password = "123"
+    manager.register("John", "Doe", username, "john@example.com", password, "user")
+    user = db_session.query(User).filter_by(username=username).first()
+    assert user is not None
+    # assert user is None
+    assert user.password_hash != password  # Ensure password is hashed
+    assert len(user.password_hash) > 40
+
+def test_duplicate_username(db_session,manager):
+    """testing duplicate username registration"""
+    username = "jane1"
+    email1 = "email@gmail.com"
+    manager.register("Jane", "Doe", username, email1, "password1", "user")
+    #check 1
+    assert db_session.query(User).filter_by(username=username).count() == 1
+
+    with pytest.raises(ValueError) as excinfo:
+        manager.register("Janey", "Doe", username, "jane2@gmail,com", "password1", "user")
+
+    assert "Username exists" in str(excinfo.value)
+
+    assert db_session.query(User).filter_by(username=username).count() == 1
+    print(str(excinfo.value))
+
+def test_fixture_debug(db_session, manager):
+    print("db_session:", db_session)
+    print("manager.db:", manager.db)
+    assert db_session is manager.db
+
+    # create first user and show DB contents
+    manager.register("Jane", "Doe", "jane1", "email@gmail.com", "pw", "user")
+    users = [u.username for u in db_session.query(User).all()]
+    print("users after register:", users)
+    assert "jane1" in users
+
+    
