@@ -6,9 +6,10 @@ from datetime import timedelta
 from resources.health import Health
 from init import app, api
 from resources.user import UserResource
-
+from resources.login import LoginResource
 
 api.add_resource(UserResource, '/users')
+api.add_resource(LoginResource, '/login')
 api.add_resource(Health, '/health')
 
 if __name__ == '__main__':
