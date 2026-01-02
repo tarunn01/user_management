@@ -1,12 +1,14 @@
-from init import ma
+# In serializers/user.py
+from extensions import ma, db
 from models.user import User
 from marshmallow import fields
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        # load_instance = True # Removed this line
-        # Exclude password_hash from the serialized output
+        # load_instance = True  <-- REMOVED THIS
+        # We want a dictionary, not a User object, so we can handle password hashing easily
+        sqla_session = db.session
         exclude = ("password_hash",)
 
     username = ma.auto_field(required=True)
@@ -14,6 +16,4 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     firstname = ma.auto_field(required=True)
     lastname = ma.auto_field(required=True)
 
-    # This field is used only for loading/deserializing the password.
-    # It will not be dumped/serialized.
     password = fields.Str(required=True, load_only=True)

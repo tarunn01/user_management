@@ -26,4 +26,8 @@ COPY .env .
 COPY . .
 
 # Run the application directly
-CMD ["/usr/local/bin/uwsgi", "--ini", "uwsgi.ini"]
+# CMD ["/usr/local/bin/uwsgi", "--ini", "uwsgi.ini"]
+
+ #TEMPORARY: Run the Flask development server to get a better error message.
+ #We will change this back to the uwsgi command later.
+ CMD ["python", "app.py"]
